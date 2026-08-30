@@ -1,0 +1,6 @@
+PyQt6>=6.6
+requests>=2.31
+sounddevice>=0.4.6
+numpy>=1.26
+keyboard>=0.13.5
+pycaw>=20240210
