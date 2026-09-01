@@ -48,6 +48,12 @@ CODEC_FFMPEG_ARGS = {
     "G.726": ["-c:a", "g726", "-b:a", "32k", "-f", "g726"],
 }
 
+# Einzige fuer den Sprech-Kanal bestaetigt unterstuetzte Codec-Variante (siehe
+# Kommentar oben). Als Konstante exportiert, damit main.py nicht mehr den
+# (fehleranfaelligen) Umweg ueber cfg.audio_codec braucht -- der Sprech-Kanal
+# ist von der Kamera-seitigen audiotype-Einstellung ohnehin unabhaengig.
+DEFAULT_CODEC = "G.726"
+
 # Stille-Byte je Codec (fuer den Verbindungs-Keepalive in camera_client)
 CODEC_SILENCE_BYTE = {
     "G.726": b"\x00",
@@ -101,6 +107,21 @@ class PushToTalkSession:
     ):
         self._open_stream_callback = open_stream_callback
         self._error_callback = error_callback
+        if codec not in CODEC_FFMPEG_ARGS:
+            # BUGFIX: Bisher wurde ein uebergebener Codec ungeprueft in
+            # self._codec geschrieben -- set_codec() validierte zwar, der
+            # Konstruktor aber nicht. Ein Alt-Wert wie "G.711" aus einer
+            # frueheren config.json (aus Zeiten vor der Entkopplung von
+            # Sprech- und Zuhoeren-Codec) fuehrte dadurch erst beim naechsten
+            # Tastendruck zu einem KeyError in start(), nicht schon beim
+            # Programmstart -- schwer nachzuvollziehen. Jetzt: sofort auf
+            # den einzig unterstuetzten Codec zurueckfallen und laut loggen.
+            logger.warning(
+                "Unbekannter/nicht unterstuetzter PTT-Codec '%s' (z.B. Rest "
+                "einer alten config.json) -- falle zurueck auf '%s'.",
+                codec, DEFAULT_CODEC,
+            )
+            codec = DEFAULT_CODEC
         self._codec = codec
         self._device = device  # None = PortAudio-Standard (siehe list_input_devices())
         self._dsp_enabled = dsp_enabled

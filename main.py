@@ -35,7 +35,7 @@ except ImportError:
 
 from config import CameraConfig, load_config, save_config, CONFIG_FILE
 from camera_client import CameraClient, CameraError
-from audio_talk import PushToTalkSession, ffmpeg_available
+from audio_talk import PushToTalkSession, ffmpeg_available, DEFAULT_CODEC
 from advanced_settings import AdvancedSettingsDialog
 from process_audio import set_process_mute, PYCAW_AVAILABLE
 from i18n import tr, set_language
@@ -147,12 +147,15 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.cfg = cfg
         self.setWindowTitle(tr("window_title", host=cfg.host))
-        self.resize(480, 480)
+        self.resize(480, 720)
 
         self.client = CameraClient(cfg)
-        # Codec aus der gespeicherten Konfiguration uebernehmen, damit die
-        # Stille-Kodierung im Sprech-Kanal von Anfang an passt.
-        self.client._speak_codec = cfg.audio_codec
+        # Sprech-Kanal (speakstream.cgi) ist auf dieser Kamera FEST auf G.726
+        # verdrahtet, unabhaengig vom Kamera-seitigen audiotype (das betrifft
+        # nur die Zuhoeren/RTSP-Richtung, siehe advanced_settings.py). NICHT
+        # aus cfg.audio_codec uebernehmen -- das war die Ursache des
+        # KeyError-Crashes bei einem Alt-Wert wie "G.711" in der config.json.
+        self.client._speak_codec = DEFAULT_CODEC
         self._talking = False
         # Debounce fuer Toggle-Modus: 'keyboard' feuert on_press_key mehrfach
         # bei gehaltener Taste (OS-Tastenwiederholung) -- dieses Flag sorgt
@@ -173,7 +176,7 @@ class MainWindow(QMainWindow):
         self._ptt_session = PushToTalkSession(
             open_stream_callback=self.client.open_speak_stream,
             error_callback=self._on_talk_error,
-            codec=cfg.audio_codec,
+            codec=DEFAULT_CODEC,
         )
 
         # PTT-Hotkey (global, auch wenn das Tool nicht im Vordergrund ist).
@@ -323,18 +326,7 @@ class MainWindow(QMainWindow):
 
     def _open_advanced_settings(self):
         dialog = AdvancedSettingsDialog(self.client, parent=self)
-        dialog.on_codec_changed = self._on_codec_changed
-        dialog.audio_codec_combo.setCurrentText(self.cfg.audio_codec)
         dialog.exec()
-
-    def _on_codec_changed(self, codec: str):
-        """Haelt PTT-Encoder und gespeicherte Konfiguration mit dem in der
-        Kamera eingestellten Codec synchron -- sonst kodiert das Tool in
-        einem anderen Format, als die Kamera erwartet."""
-        self.cfg.audio_codec = codec
-        self._ptt_session.set_codec(codec)
-        save_config(self.cfg)
-        self.status.showMessage(tr("field_audio_codec") + f" {codec}")
 
     def _copy_rtsp_url(self):
         url = self.cfg.rtsp_url
@@ -630,7 +622,7 @@ class MainWindow(QMainWindow):
             # Auth-Erkennung zuruecksetzen, damit "Verbinden" sauber neu
             # gegen die neue Adresse laeuft.
             self.client = CameraClient(self.cfg)
-            self.client._speak_codec = self.cfg.audio_codec
+            self.client._speak_codec = DEFAULT_CODEC
             self._ptt_session._open_stream_callback = self.client.open_speak_stream
             self.connect_btn.setText(tr("connect_button"))
             self.status.showMessage(tr("please_reconnect_status"))
