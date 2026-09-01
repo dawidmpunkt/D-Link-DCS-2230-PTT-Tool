@@ -40,11 +40,10 @@ BLOCK_DURATION_S = 0.05  # Blockgroesse fuer Aufnahme/Versand (vorher 0.2 -- fue
 # ffmpeg-Encoder-Parameter je Codec-Variante.
 #
 # STAND DER DINGE (per Wireshark-Mitschnitt bestaetigt): Der Sprech-Kanal der
-# Kamera erwartet IMMER G.711 µ-law, unabhaengig vom Kamera-seitigen
-# audiotype (der nur die Zuhoeren-Richtung betrifft). G.711 A-law fuehrt zu
-# einem aktiven Verbindungsabbruch (die Kamera erkennt es vermutlich als
-# beschaedigten/falschen Stream). G.726 fuer den Sprech-Kanal nicht
+# Kamera erwartet IMMER G.726, unabhaengig vom Kamera-seitigen
+# audiotype (der nur die Zuhoeren-Richtung betrifft). G.711 etc. fuer den Sprech-Kanal nicht
 # unterstuetzt. Die anderen Varianten unten bleiben zum Vergleich/Diagnose.
+
 CODEC_FFMPEG_ARGS = {
     "G.726": ["-c:a", "g726", "-b:a", "32k", "-f", "g726"],
 }

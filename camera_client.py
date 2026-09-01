@@ -555,10 +555,10 @@ class CameraClient:
     # Codec-ID-Byte (Frame-Offset 4): Wert 2 in ZWEI unabhaengigen Mitschnitten
     # bestaetigt -- einer mit Kamera-Einstellung "G.711", einer mit "G.726".
     # Beide Male war die ID identisch (2) UND die tatsaechlichen Audio-Bytes
-    # zeigten beide Male die G.711-µ-law-typische Byte-Verteilung (0xff-
-    # Haeufung). Der Talk-Kanal nutzt also unabhaengig vom Kamera-Codec immer
-    # G.711 (µ-law) mit fester Codec-ID 2 -- keine Vermutung mehr, sondern
-    # zweifach bestaetigt. G.726 wird fuer den Sprech-Kanal nicht unterstuetzt.
+    # zeigten beide Male die G.726-typische Byte-Verteilung. Der Talk-Kanal 
+    # nutzt also unabhaengig vom Kamera-Codec immer
+    # G.726 mit fester Codec-ID 2 -- keine Vermutung mehr, sondern
+    # zweifach bestaetigt. G.711 wird fuer den Sprech-Kanal nicht unterstuetzt.
     _FRAME_CODEC_ID = {"G.726": 2}
 
     def _build_frame(self, payload: bytes, sequence: int, codec: str) -> bytes:

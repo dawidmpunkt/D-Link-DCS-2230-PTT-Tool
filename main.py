@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.cfg = cfg
         self.setWindowTitle(tr("window_title", host=cfg.host))
-        self.resize(480, 720)
+        self.resize(480, 480)
 
         self.client = CameraClient(cfg)
         # Codec aus der gespeicherten Konfiguration uebernehmen, damit die

@@ -40,20 +40,11 @@ class CameraConfig:
     username: str = "admin"
     password: str = ""
     # RTSP-Profil fuer den "URL kopieren"-Button (zum Ansehen in externem VLC).
-    # WICHTIG (per Test bestaetigt): /live3.sdp existiert NICHT als RTSP-Stream,
-    # obwohl Profil 3 fuer Snapshots (dms?nowprofileid=3) funktioniert. Nur
-    # Profil 1 und 2 sind als RTSP-Stream bestaetigt nutzbar.
     stream_profile: int = 1
     # Globaler Hotkey fuer Push-to-Talk, Syntax nach der 'keyboard'-Bibliothek,
     # z.B. "f9", "capslock", "ctrl+space". Leerer String = kein Hotkey.
     ptt_hotkey: str = "f9"
-    # Audio-Codec fuer Push-to-Talk. ENDGUELTIG BESTAETIGT (mehrere unabhaengige
-    # Tests): Der Sprech-Kanal (speakstream.cgi) ist auf dieser Kamera FEST auf
-    # G.726 verdrahtet, UNABHAENGIG von der 'audiotype'-Kamera-Einstellung. Die
-    # Kamera-Einstellung steuert nur die Zuhoeren-Richtung (RTSP-Stream), nicht
-    # die Sprech-Richtung. Getestet mit test_tone.py bei explizit anderem
-    # Codec (G.711/G.711-ulaw) UND unterschiedlichen Kamera-audiotype-
-    # Einstellungen -- funktioniert in jeder Kombination nur mit G.726. Das
+    # Audio-Codec fuer Push-to-Talk. Funktioniert in jeder Kombination nur mit G.726. Das
     # ist eine Hardware-/Firmware-Eigenschaft dieser Kamera, kein Bug in
     # diesem Tool -- G.711 fuer PTT ist auf diesem Geraet nicht erreichbar.
     audio_codec: str = "G.726"
